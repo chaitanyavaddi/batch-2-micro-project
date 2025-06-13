@@ -1,32 +1,27 @@
+from supabase import create_client
 from fastapi import FastAPI
 
 app = FastAPI()
 
-library = []
+supabase_url = "https://rkwhnbhuasicbfgskuih.supabase.co"
+supabase_api_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJrd2huYmh1YXNpY2JmZ3NrdWloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4MjE3NzMsImV4cCI6MjA2NTM5Nzc3M30.lz5JCN07H0phADuK9eQ-czTtnBAEHfdzVj3sZ9LvoHo"
 
-@app.post("/book/add")
-def add_book(name, desc):
-    library.append({"name": name, "desc": desc})
-    return library
+database = create_client(supabase_url, supabase_api_key)
 
-@app.put("/book/update")
-def update_book(name, updated_desc):
-    for book in library:
-        if book['name'] == name:
-            book["desc"] = updated_desc
-            return library
-    else:
-        return "No book found"
+#Read
+# result = database.table("app_users").select('*').execute()
 
+@app.get("/users")
+def read_users():
+    result = database.table("app_users").select('*').execute()
+    return result.data
 
-@app.delete("/book/delete")
-def delete_book():
-    return "Hello"
+@app.get('/create')
+def create_user(name, age, password):
+    result = database.table('app_users').insert({
+        'name': name,
+        'age': age,
+        'password': password
+    }).execute()
 
-@app.get("/book/get")
-def get_book():
-    return "Hello"
-
-
-
-#Adding somethign else
+    return result.data
